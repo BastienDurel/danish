@@ -34,7 +34,7 @@ able to:
 To build the program:
 
  - POSIX compliant build system
- - OpenSSL (>= 0.9.8), the Open Source toolkit for SSL/TLS
+ - OpenSSL (>= 1.1), the Open Source toolkit for SSL/TLS
 
 3. BUILDING
 ===========

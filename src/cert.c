@@ -199,17 +199,17 @@ char* cert_get_sha256_hash(const cert_ctx* ctx, const int selector)
 	unsigned char* 	hash_data	= NULL;
 	size_t		hash_data_len	= 0;
 	char*		hash_str	= (char*) malloc(65 * sizeof(char));	/* SHA256 = 64 hex digits + \0 */
-	EVP_MD_CTX	hash_ctx;
+	EVP_MD_CTX*	hash_ctx        = EVP_MD_CTX_new();
 	unsigned char	hash[32]	= { 0 };				/* SHA256 = 32 bytes */
 	unsigned int	hash_len	= 32;
 	int		i		= 0;
 	
 	get_hash_input(ctx, selector, &hash_data, &hash_data_len);
 	
-	EVP_DigestInit(&hash_ctx, EVP_sha256());
-	EVP_DigestUpdate(&hash_ctx, hash_data, hash_data_len);
-	EVP_DigestFinal(&hash_ctx, hash, &hash_len);
-	EVP_MD_CTX_cleanup(&hash_ctx);
+	EVP_DigestInit(hash_ctx, EVP_sha256());
+	EVP_DigestUpdate(hash_ctx, hash_data, hash_data_len);
+	EVP_DigestFinal(hash_ctx, hash, &hash_len);
+	EVP_MD_CTX_free(hash_ctx);
 	
 	OPENSSL_free(hash_data);
 	
@@ -228,18 +228,19 @@ char* cert_get_sha512_hash(const cert_ctx* ctx, const int selector)
 	unsigned char*	hash_data	= NULL;
 	size_t		hash_data_len	= 0;
 	char*		hash_str	= (char*) malloc(129 * sizeof(char));	/* SHA512 = 128 hex digits + \0 */
-	EVP_MD_CTX	hash_ctx;
+	EVP_MD_CTX*	hash_ctx        = EVP_MD_CTX_new();
 	unsigned char	hash[64]	= { 0 };				/* SHA512 = 64 bytes */
 	unsigned int	hash_len	= 64;
 	int		i		= 0;
 	
 	get_hash_input(ctx, selector, &hash_data, &hash_data_len);
 	
-	EVP_DigestInit(&hash_ctx, EVP_sha512());
-	EVP_DigestUpdate(&hash_ctx, hash_data, hash_data_len);
-	EVP_DigestFinal(&hash_ctx, hash, &hash_len);
+	EVP_DigestInit(hash_ctx, EVP_sha512());
+	EVP_DigestUpdate(hash_ctx, hash_data, hash_data_len);
+	EVP_DigestFinal(hash_ctx, hash, &hash_len);
 	
 	OPENSSL_free(hash_data);
+	EVP_MD_CTX_free(hash_ctx);
 	
 	for (i = 0; i < 64; i++)
 	{
@@ -255,7 +256,7 @@ const char* mail_get_smimea_sha256_hash(const char* mailAddress)
 	assert(strlen(mailAddress) < 512);
 
 	static char	hash_str[57]	= { 0 };
-	EVP_MD_CTX	hash_ctx;
+	EVP_MD_CTX*	hash_ctx        = EVP_MD_CTX_new();
 	unsigned char	hash[32]	= { 0 };
 	unsigned int	hash_len	= 32;
 	size_t		i		= 0;
@@ -269,9 +270,10 @@ const char* mail_get_smimea_sha256_hash(const char* mailAddress)
 		lowerMail[i] = tolower(mailAddress[i]);
 	}
 
-	EVP_DigestInit(&hash_ctx, EVP_sha256());
-	EVP_DigestUpdate(&hash_ctx, lowerMail, strlen(lowerMail));
-	EVP_DigestFinal(&hash_ctx, hash, &hash_len);
+	EVP_DigestInit(hash_ctx, EVP_sha256());
+	EVP_DigestUpdate(hash_ctx, lowerMail, strlen(lowerMail));
+	EVP_DigestFinal(hash_ctx, hash, &hash_len);
+	EVP_MD_CTX_free(hash_ctx);
 
 	for (i = 0; i < 28; i++)
 	{
